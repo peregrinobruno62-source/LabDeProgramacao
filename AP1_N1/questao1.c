@@ -8,7 +8,7 @@ int main() {
 
     unsigned char R = (M >> 2) & 1;
     unsigned char G = (M >> 1) & 1;
-    unsigned char B = (M >> 0) & 1;
+    unsigned char B = M & 1;
 
     printf ("R = %hhu \n", R);
     printf ("G = %hhu \n", G);
