@@ -2,61 +2,76 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define TAM 10
-
 // Protótipos das Funções
-int *alocarMemoriaInt(const unsigned tamanho);
-void gerarVetor(int tamanho, int *vetor);
+int *alocarMemoria(const unsigned tamanho);
+void gerarVetor(int tamanho, int *vetor, int limiteMax);
 void buscarPrimeiroEUltimoPar(int tamanho, int *vetor, int **vetor_enderecos);
 
-int main() {
-    srand(time(NULL));
-    int *vet = alocarMemoriaInt(TAM);
-    int **vetor_enderecos = (int **) malloc(2 * sizeof(int *));
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("Uso: %s <tamanho_do_vetor> [limite_maximo]\n", argv[0]);
+        printf("Exemplo: %s 15 50\n", argv[0]);
+        return 1;
+    }
 
-    if (vetor_enderecos == NULL) {
-        puts("Nao ha memoria disponivel");
+    int tam = atoi(argv[1]);
+    
+    if (tam <= 0) {
+        puts("Erro: O tamanho do vetor deve ser maior que zero.");
+        return 1;
+    }
+
+    int limiteMax = 100;
+    if (argc >= 3) {
+        limiteMax = atoi(argv[2]);
+        if (limiteMax <= 0) {
+            limiteMax = 100;
+        }
+    }
+
+    srand(time(NULL));
+    int *vet = alocarMemoria(tam);
+    int **vet_enderecos = calloc(2, sizeof(int *));
+    if (vet_enderecos == NULL) {
+        puts("Erro na alocação de memória");
         exit(1);
     }
-    
-    vetor_enderecos[0] = NULL;
-    vetor_enderecos[1] = NULL;
 
-    gerarVetor(TAM, vet);
-    buscarPrimeiroEUltimoPar(TAM, vet, vetor_enderecos);
+    gerarVetor(tam, vet, limiteMax);
+    buscarPrimeiroEUltimoPar(tam, vet, vet_enderecos);
 
-    if (vetor_enderecos[0] != NULL) {
-        printf("1ª valor par: %d \n", *vetor_enderecos[0]);
-        printf("Endereço do 1ª valor par: [%p] \n\n", (void*)vetor_enderecos[0]);
+    if (vet_enderecos[0] != NULL) {
+        printf("1ª valor par: %d \n", *vet_enderecos[0]);
+        printf("Endereço do 1ª valor par: [%p] \n\n", (void*)vet_enderecos[0]);
     } else {
         printf("Nenhum valor par foi gerado.\n\n");
     }
 
-    if (vetor_enderecos[1] != NULL) {
-        printf("Último valor par: %d \n", *vetor_enderecos[1]);
-        printf("Endereço do último valor par: [%p] \n", (void*)vetor_enderecos[1]);
+    if (vet_enderecos[1] != NULL) {
+        printf("Último valor par: %d \n", *vet_enderecos[1]);
+        printf("Endereço do último valor par: [%p] \n", (void*)vet_enderecos[1]);
     }
 
     free(vet);
-    free(vetor_enderecos); 
+    free(vet_enderecos); 
     
     printf("\n");
     return 0;
 }
 
-int *alocarMemoriaInt(const unsigned tamanho) {
+int *alocarMemoria(const unsigned tamanho) {
     int *p = NULL;
     if(!(p = (int *) malloc(tamanho * sizeof(int)))) {
-        puts("Não há memoria disponivel");
+        puts("Erro na alocação de memória");
         exit(1);
     }
     return p;
 }
 
-void gerarVetor(int tamanho, int *vetor) {
+void gerarVetor(int tamanho, int *vetor, int limiteMax) {
     puts("Vetor gerado: ");
     for(int i = 0; i < tamanho; i++) {
-        *(vetor + i) = rand() % 100;
+        *(vetor + i) = rand() % limiteMax;          
         printf("[%d] ", *(vetor + i));
     }
     printf("\n\n");
