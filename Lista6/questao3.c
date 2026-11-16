@@ -2,28 +2,49 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define TAM 10
-
 // Protótipos das Funções
 int *alocarMemoriaInt(const unsigned tamanho);
 float *alocarMemoriaFloat(const unsigned tamanho);
-void gerarVetor(int tamanho, int *vetor);
-int buscarMenor(int tamanho, int *vetor);
-int buscarMaior(int tamanho, int *vetor);
-void normalizarVetor(int tamanho, int *vetor, float *normalizado);
+void gerarVetor(int tamanho, int *vetor, int limiteMax);
+void buscarMinMax(int tamanho, int *vetor, int *menor, int *maior);
+void normalizarVetor(int tamanho, int *vetor, float *normalizado, int menor, int maior);
 void imprimirVetorFloat(int tamanho, float *vetor);
 
-int main() {
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("Uso: %s <tamanho_do_vetor> [limite_maximo]\n", argv[0]);
+        printf("Exemplo: %s 15 50\n", argv[0]);
+        return 1;
+    }
+
+    int tam = atoi(argv[1]);
+    
+    if (tam <= 0) {
+        puts("Erro: O tamanho do vetor deve ser maior que zero.");
+        return 1;
+    }
+
+    int limiteMax = 100;
+    if (argc >= 3) {
+        limiteMax = atoi(argv[2]);
+        if (limiteMax <= 0) {
+            limiteMax = 100;
+        }
+    }
+
     srand(time(NULL));
-    int *vet = alocarMemoriaInt(TAM);
-    float *norm = alocarMemoriaFloat(TAM);
+    int *vet = alocarMemoriaInt(tam);
+    float *norm = alocarMemoriaFloat(tam);
 
-    gerarVetor(TAM, vet);
-    printf("Menor: %d | Maior: %d\n\n", buscarMenor(TAM, vet), buscarMaior(TAM, vet));
+    gerarVetor(tam, vet, limiteMax);
 
-    normalizarVetor(TAM, vet, norm);
+    int menor, maior;
+    buscarMinMax(tam, vet, &menor, &maior);
+    printf("Menor: %d | Maior: %d\n\n", menor, maior);
+
+    normalizarVetor(tam, vet, norm, menor, maior);
     puts("Vetor normalizado (min-max): ");
-    imprimirVetorFloat(TAM, norm);
+    imprimirVetorFloat(tam, norm);
 
     free(vet);
     free(norm);
@@ -50,46 +71,38 @@ float *alocarMemoriaFloat(const unsigned tamanho) {
     return p;
 }
 
-void gerarVetor(int tamanho, int *vetor) {
+void gerarVetor(int tamanho, int *vetor, int limiteMax) {
     puts("Vetor gerado: ");
     for(int i = 0; i < tamanho; i++) {
-        *(vetor + i) = rand() % 100;
+        *(vetor + i) = rand() % limiteMax;          
         printf("[%d] ", *(vetor + i));
     }
     printf("\n\n");
 }
 
-int buscarMenor(int tamanho, int *vetor) {
-    int menor = *vetor;
-    for(int i = 1; i < tamanho; i++) {
-        if(*(vetor + i) < menor) {
-            menor = *(vetor + i);
-        }
-    }
-    return menor;
-}
+void buscarMinMax(int tamanho, int *vetor, int *menor, int *maior) {
+    *menor = *vetor;
+    *maior = *vetor;
 
-int buscarMaior(int tamanho, int *vetor) {
-    int maior = *vetor;
-    for(int i = 1; i < tamanho; i++) {
-        if(*(vetor + i) > maior) {
-            maior = *(vetor + i);
+    for (int i = 1; i < tamanho; i++) {
+        if (*(vetor + i) < *menor) {
+            *menor = *(vetor + i);
+        }
+        if (*(vetor + i) > *maior) {
+            *maior = *(vetor + i);
         }
     }
-    return maior;
 }
 
 // X' = (X - min(X)) / (max(X) - min(X))
-void normalizarVetor(int tamanho, int *vetor, float *normalizado) {
-    int menor = buscarMenor(tamanho, vetor);
-    int maior = buscarMaior(tamanho, vetor);
-    int amplitude = maior - menor;
+void normalizarVetor(int tamanho, int *vetor, float *normalizado, int menor, int maior) {
+    float amplitude = (float)maior - (float)menor;
 
-    for(int i = 0; i < tamanho; i++) {
-        if(amplitude == 0) {
+    for (int i = 0; i < tamanho; i++) {
+        if (amplitude == 0.0f) {
             *(normalizado + i) = 0.0f;
         } else {
-            *(normalizado + i) = (float)(*(vetor + i) - menor) / amplitude;
+            *(normalizado + i) = (*(vetor + i) - menor) / amplitude;
         }
     }
 }
