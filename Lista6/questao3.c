@@ -86,7 +86,7 @@ void normalizarVetor(int tamanho, int *vetor, float *normalizado) {
     int amplitude = maior - menor;
 
     for(int i = 0; i < tamanho; i++) {
-        if(amplitude == 0) { // evita divisão por zero (todos os valores iguais)
+        if(amplitude == 0) {
             *(normalizado + i) = 0.0f;
         } else {
             *(normalizado + i) = (float)(*(vetor + i) - menor) / amplitude;
